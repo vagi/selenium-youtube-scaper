@@ -18,9 +18,6 @@ driver = webdriver.Chrome('./chromedriver')
 
 
 
-
-
-
 if __name__ == "__main__":
     driver.get(YOUTUBE_TRENDING_URL)
     print('Page title:', driver.title)
