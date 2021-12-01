@@ -1,4 +1,5 @@
 # The tutorial is here: https://www.browserstack.com/guide/python-selenium-to-run-web-automation-test
+import pandas as pd
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -26,6 +27,31 @@ def get_videos(driver):
     return videos
 
 
+def parse_videos(video):
+    """
+    Parsing title, url, thumbnail_url, channel, views,
+    uploaded, description
+    """
+    title_tag = video.find_element(By.ID, 'video-title')
+    title = title_tag.text
+    url = title_tag.get_attribute('href')
+
+    thumbnail_tag = video.find_element(By.TAG_NAME, 'img')
+    thumbnail_url = thumbnail_tag.get_attribute('src')
+
+    channel_div = video.find_element(By.CLASS_NAME, 'ytd-channel-name')
+    channel_name = channel_div.text
+
+    description = video.find_element(By.ID, 'description-text').text
+
+    return {
+        'title': title,
+        'url': url,
+        'thumbnail_url': thumbnail_url,
+        'channel': channel_name,
+        'description': description,
+    }
+
 
 if __name__ == "__main__":
     # driver = get_driver()
@@ -34,13 +60,12 @@ if __name__ == "__main__":
     videos = get_videos(driver)
     print(f"Found {len(videos)} videos.")
 
-    print("Parsing the first video")
-    # title, url, thumbunail_url, channel, views, uploaded, description
-    video = videos[0]
-    title_tag = video.find_element(By.ID, 'video-title')
-    title = title_tag.text
-    url = title_tag.get_attribute('href')
-    print("Title:", title)
-    print("URL:", url)
+    print("Parsing top 20 video...")
+    videos_data = [parse_videos(video) for video in videos[:20]]
+
+    print("Saving the data to CSV file")
+    videos_df = pd.DataFrame(videos_data)
+    videos_df.to_csv("trending_top20.csv", index=None)
+
 
 
